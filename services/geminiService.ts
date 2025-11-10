@@ -22,7 +22,6 @@ const getGeminiClient = (): GoogleGenAI => {
     return ai;
 };
 
-
 const textModel = "gemini-2.5-flash";
 const embeddingModel = "text-embedding-004";
 
@@ -86,42 +85,17 @@ export const generateEmbedding = async (text: string): Promise<number[]> => {
     try {
         const client = getGeminiClient();
 
-        // Pass contents as a list with a text part (matches EmbedContentParameters.contents)
-        // Cast to any because ContentListUnion types differ between SDK versions
         const result: any = await client.models.embedContent({
             model: embeddingModel,
             contents: [{ text }],
         } as any);
 
-        // Handle several possible response shapes
-        // 1) { embedding: { values: number[] } }
         if (Array.isArray(result?.embedding?.values)) {
             return result.embedding.values as number[];
         }
 
-        // 2) { embeddings: [{ values: number[] }, ...] }
-        if (Array.isArray(result?.embeddings?.[0]?.values)) {
-            return result.embeddings[0].values as number[];
-        }
-
-        // 3) { data: [{ embedding: { values: number[] } }, ...] }
-        if (Array.isArray(result?.data?.[0]?.embedding?.values)) {
-            return result.data[0].embedding.values as number[];
-        }
-
-        // 4) { data: [{ embedding: number[] }, ...] } (some clients)
-        if (Array.isArray(result?.data?.[0]?.embedding)) {
-            return result.data[0].embedding as number[];
-        }
-
-        // If nothing matched, log the response to debug and throw an informative error
-        console.error(
-            "Unexpected embedding response shape from embedContent:",
-            result
-        );
-        throw new Error(
-            "Could not locate embedding in embedContent response. Check logged output for shape."
-        );
+        console.error("Unexpected embedding response shape:", result);
+        throw new Error("Could not extract embedding values from response.");
     } catch (error) {
         console.error("Error generating embedding:", error);
         throw error;
