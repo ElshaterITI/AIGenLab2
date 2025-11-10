@@ -88,10 +88,13 @@ export const generateEmbedding = async (text: string): Promise<number[]> => {
         const result: any = await client.models.embedContent({
             model: embeddingModel,
             contents: [{ text }],
-        } as any);
+        });
 
-        if (Array.isArray(result?.embedding?.values)) {
-            return result.embedding.values as number[];
+        console.log("Embedding API response:", result);
+
+        // NEW: access embeddings from result.embeddings[0].values
+        if (Array.isArray(result?.embeddings) && Array.isArray(result.embeddings[0]?.values)) {
+            return result.embeddings[0].values as number[];
         }
 
         console.error("Unexpected embedding response shape:", result);
@@ -101,3 +104,4 @@ export const generateEmbedding = async (text: string): Promise<number[]> => {
         throw error;
     }
 };
+
