@@ -1,0 +1,5 @@
+{
+  "name": "Gemini AI Studio",
+  "description": "An AI chat application that can generate text and images using the Gemini API. Users can toggle between a text-based chat with vision capabilities and an image generation tool.",
+  "requestFramePermissions": []
+}
